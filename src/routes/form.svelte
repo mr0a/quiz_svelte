@@ -9,8 +9,13 @@
     export let error, status;
     console.log('error', error)
     console.log('status', status)
-    let socket, message, question='', quiz_type='radio', options=[], invalidQuestion, formErrors = [], questionSubmitted=false;
+    let socket, message, invalidQuestion, formErrors = [], questionSubmitted=false;
     // $:console.log(options)
+    let questionData = {
+            'question': '',
+            'quiz_type': 'radio',
+            'options': []
+        }
     let url = 'djangowebdev.herokuapp.com'
 
     onMount(() => {
@@ -18,6 +23,10 @@
         socket.onmessage = event => {
             message = JSON.parse(event.data)
             console.log(message);
+            if (message.type == 'question') {
+                questionData = message.data
+                questionSubmitted = true
+            }
         }
     });
 
@@ -29,24 +38,18 @@
     })
 
     const handleSubmit = (event) => {
-        question = question.trim()
         invalidQuestion = false
         formErrors = []
         questionSubmitted = false
 
-        let questionData = {
-            'question': question,
-            'quiz_type': quiz_type,
-            'options': options
-        }
         let data = {'type': 'question', 'data': questionData};
         console.log(data);
-        if (question.length < 3){
+        if (questionData.question.length < 3){
             invalidQuestion = true
             formErrors.push("Enter a valid question!")
             console.log(formErrors)
         }
-        if (question.length > 0 && options.length > 0){
+        if (questionData.question.length > 0 && questionData.options.length > 0){
             socket.send(JSON.stringify(data));
             questionSubmitted = true
             console.log("Submitted")
@@ -54,38 +57,43 @@
     };
 
     function handleNextQuestion() {
-        question='', quiz_type='radio', options=[], invalidQuestion=undefined, formErrors = [], questionSubmitted=false
+        questionData = {
+            'question': '',
+            'quiz_type': 'radio',
+            'options': []
+        }
+        invalidQuestion=undefined, formErrors = [], questionSubmitted=false
     }
 
 </script>
 
 <div>
     <form on:submit|preventDefault={handleSubmit} on:reset|preventDefault={handleNextQuestion}>
-        <label>Question: <input name="question" bind:value={question} class:field-danger={invalidQuestion} type="text" /></label>
+        <label>Question: <input name="question" bind:value={questionData.question} class:field-danger={invalidQuestion} type="text" /></label>
         <div class="py-5 options">
             <div>
                 <p>Quiz type: </p>
-                <input type="radio" bind:group={quiz_type} value="radio" id="radio">
+                <input type="radio" bind:group={questionData.quiz_type} value="radio" id="radio">
                 <label for="radio">Radio</label>
-                <input type="radio" bind:group="{quiz_type}" value="checkbox" id="checkbox" >
+                <input type="radio" bind:group="{questionData.quiz_type}" value="checkbox" id="checkbox" >
                 <label for="checkbox">Checkbox</label>
             </div>
             
             <div class="py-5">
                 <label for="option1">Option 1: </label>
-                <input type="text" bind:value={options[0]} class="option" />
+                <input type="text" bind:value={questionData.options[0]} class="option" />
             </div>
             <div class="py-5">
                 <label for="option1">Option 2: </label>
-                <input type="text" bind:value={options[1]} class="option" />
+                <input type="text" bind:value={questionData.options[1]} class="option" />
             </div>
             <div class="py-5">
                 <label for="option1">Option 3: </label>
-                <input type="text" bind:value={options[2]} class="option" />
+                <input type="text" bind:value={questionData.options[2]} class="option" />
             </div>
             <div class="py-5">
                 <label for="option1">Option 4: </label>
-                <input type="text" bind:value={options[3]} class="option" />
+                <input type="text" bind:value={questionData.options[3]} class="option" />
             </div>
         </div>
         {#if formErrors.length > 0}

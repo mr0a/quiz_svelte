@@ -59,5 +59,6 @@
 		     the blog data when we hover over the link or tap it on a touchscreen -->
 		<li><a aria-current="{segment === 'quiz' ? 'page' : undefined}" href="quiz">quiz</a></li>
 		<li><a aria-current="{segment === 'form' ? 'page' : undefined}" href="form">form</a></li>
+		<li><a aria-current="{segment === 'login' ? 'page' : undefined}" href="login">login</a></li>
 	</ul>
 </nav>

@@ -19,7 +19,10 @@
         //     console.log(message);
         // });
         socket.onmessage = event => {
-            message = JSON.parse(event.data)
+            let parsedData = JSON.parse(event.data)
+            if (parsedData.type == 'question'){
+                message = parsedData
+            }
             console.log(message);
         }
     });
